@@ -12,12 +12,11 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 
 # Define File and Folder for the output for Quotas report 
-fileNameExel = ["mb51_261-262.XLSX","mb51_7.XLSX"]
-folderdir = "" #"O:\\Shared drives\\teste\\"
-spreadsheet_id = "" #'1d5VmlxbGGuHX5IEAt2n5rySWcxGkVrg5BCWEBgpHLFk'
-mergeField = "" #'Row Labels'
-mergeType = "" #'outer'
-system_SAP = "" #"LAP"
+fileNameExel = []
+folderdir = "" 
+spreadsheet_id = "" 
+mergeField = "" 
+system_SAP = "" 
 
 dateToday = datetime.now().replace(day=1)
 startDate = dateToday  - relativedelta(months=1)
@@ -40,43 +39,9 @@ def SAP_Extraction():
     time.sleep(10)
     SapGuiAuto = win32com.client.GetObject('SAPGUI')
     application = SapGuiAuto.GetScriptingEngine
-   # application.Visible = False
     connection = application.Children(0)
     session = connection.Children(0)
-    
-    """     WScript = win32com.client.Dispatch("{B54F3741-5B07-11cf-A4B0-00AA004A55E8}")
-    WScript.ConnectObject(session, "on")
-    WScript.ConnectObject(application, "on")
-    """
-    #MERGE POR  Material 
-    def zse16():
-        session.findById("wnd[0]/tbar[0]/okcd").text = "zse16"
-        session.findById("wnd[0]").sendVKey (0)
-        session.findById("wnd[0]/usr/ctxtDATABROWSE-TABLENAME").text = "marc"
-        session.findById("wnd[0]/usr/ctxtDATABROWSE-TABLENAME").caretPosition = 4
-        session.findById("wnd[0]").sendVKey (0)
-        session.findById("wnd[0]/usr/ctxtI2-LOW").text = "br12"
-        session.findById("wnd[0]/usr/ctxtI2-LOW").setFocus
-        session.findById("wnd[0]/usr/ctxtI2-LOW").caretPosition = 4
-        session.findById("wnd[0]/tbar[1]/btn[17]").press
-        session.findById("wnd[1]/usr/txtENAME-LOW").text = "BRhey00"
-        session.findById("wnd[1]/usr/txtENAME-LOW").setFocus
-        session.findById("wnd[1]/usr/txtENAME-LOW").caretPosition = 7
-        session.findById("wnd[1]").sendVKey (8)
-        session.findById("wnd[0]").sendVKey (8)
-    
-    def Y_lad_65000280():
-        session.findById("wnd[0]/tbar[0]/okcd").text = "Y_lad_65000280"
-        session.findById("wnd[0]").sendVKey (0)
-        session.findById("wnd[0]/tbar[1]/btn[17]").press
-        session.findById("wnd[1]/usr/txtENAME-LOW").text = "brhey00"
-        session.findById("wnd[1]/usr/txtENAME-LOW").setFocus
-        session.findById("wnd[1]/usr/txtENAME-LOW").caretPosition = 7
-        session.findById("wnd[1]").sendVKey (8)
-        session.findById("wnd[0]").sendVKey (8)
-        session.findById("wnd[1]").sendVKey (0)
-        session.findById("wnd[1]").sendVKey (0)
-    
+   
     def Mb51_261_262():
         print("Comecar o mb51_261-262")
         session.findById("wnd[0]/tbar[0]/okcd").text = "mb51"
@@ -102,30 +67,6 @@ def SAP_Extraction():
         print("salvou")
         
         return 'mb51_261-262.XLSX'
-    
-    def Mb51_7():
-        print("Comecar o Mb51_7")
-        session.findById("wnd[0]/tbar[0]/okcd").text = "mb51"
-        session.findById("wnd[0]").sendVKey (0)
-        session.findById("wnd[0]/usr/ctxtWERKS-LOW").text = "br12"
-        session.findById("wnd[0]/usr/ctxtBWART-LOW").text = "7*"
-        session.findById("wnd[0]/usr/ctxtBWART-HIGH").text = ""
-        session.findById("wnd[0]/usr/ctxtBUDAT-LOW").text = startDate
-        session.findById("wnd[0]/usr/ctxtBUDAT-HIGH").text = endDate
-        session.findById("wnd[0]/usr/ctxtALV_DEF").text = "/brhey00"
-        session.findById("wnd[0]/usr/ctxtALV_DEF").setFocus()
-        session.findById("wnd[0]/usr/ctxtALV_DEF").caretPosition = 8
-        session.findById("wnd[0]").sendVKey (8)
-        print("rodou o mb51_7")
-        print("indo salvar como exel")
-        session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = folderdir
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "mb51_7.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 17
-        session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        print("salvou")
-        return 'mb51_7.XLSX'
-    
     lista_de_metodos = [zse16]
     
     #RUN SAP script
