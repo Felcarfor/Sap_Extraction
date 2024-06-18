@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Esta aplicação em Python facilita a extração de dados do SAP usando consultas pré-definidas (`mb51`) e integra os dados extraídos em um documento do Google Sheets.
+Esta aplicação em Python facilita a extração de dados do SAP usando consultas pré-definidas e integra os dados extraídos em um documento do Google Sheets.
 
 ## Requisitos
 
