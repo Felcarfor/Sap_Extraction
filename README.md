@@ -1,23 +1,23 @@
-# SAP Data Extraction and Integration Tool
+# Ferramenta de Extração e Integração de Dados SAP
 
-## Overview
+## Visão Geral
 
-This Python application facilitates data extraction from SAP using predefined queries (`mb51`) and integrates the extracted data into a Google Sheets document.
+Esta aplicação em Python facilita a extração de dados do SAP usando consultas pré-definidas (`mb51`) e integra os dados extraídos em um documento do Google Sheets.
 
-## Requirements
+## Requisitos
 
 - Python 3.x
-- Libraries:
-  - `pandas`: Data manipulation and analysis.
-  - `win32com`: Windows automation for interacting with SAP GUI.
-  - `gspread_pandas`: Integration between pandas and Google Sheets for data updating.
-  - `tkinter`: GUI library for user interface.
-  - `oauth2client`: OAuth2 authentication for accessing Google services, essential for Google Sheets.
+- Bibliotecas:
+  - `pandas`: Para manipulação e análise de dados.
+  - `win32com`: Automação do Windows para interagir com o SAP GUI.
+  - `gspread_pandas`: Integração entre pandas e Google Sheets para atualização de dados.
+  - `tkinter`: Biblioteca gráfica para interface de usuário.
+  - `oauth2client`: Autenticação OAuth2 para acessar serviços do Google, essencial para Google Sheets.
 
-## Setup
+## Configuração
 
-### Installation
+### Instalação
 
-Ensure Python and required libraries are installed:
+Certifique-se de ter Python e as bibliotecas necessárias instaladas:
 ```bash
 pip install pandas gspread-pandas pywin32 oauth2client
