@@ -1,5 +1,4 @@
 import pandas as pd #Biblioteca para manipulação de dados
-import win32com.client #Biblioteca para abrir programas do Windows(ex.: SAP)
 import time
 import subprocess
 from dateutil.relativedelta import relativedelta
@@ -13,10 +12,12 @@ import string
 import json
 import re
 from openpyxl import Workbook
-
+import pythoncom
+pythoncom.CoInitialize()
+from win32com.client import GetObject
 
 # Define File and Folder for the output for Quotas report 
-fileNameExel = ["mb51_7.XLSX","zse16.XLSX"]
+fileNameExel = ["mb51_261-262.XLSX","mb51_7.XLSX","zse16.XLSX","Y_LAD_65000280.XLSX"]
 directory = "" #"O:\\Shared drives\\teste\\"
 spreadsheet_id = "" #'1d5VmlxbGGuHX5IEAt2n5rySWcxGkVrg5BCWEBgpHLFk'
 mergeField = "" #'Row Labels'
@@ -32,20 +33,18 @@ startDate  = startDate.strftime('%m%d%Y')
 endDate = endDate.strftime('%m%d%Y')
 print(startDate) 
 print(endDate)
+print("v1.0")
  
 def SAP_Extraction():
 
-    #Limpa a lista de nome de arquivos
-    global fileNameExel
+#Limpa a lista de nome de arquivos
     fileNameExel = []
     print(fileNameExel)
+    subprocess.check_call([r'C:\Program Files (x86)\SAP\FrontEnd\SAPgui\sapshcut.exe', '-system=' + system_SAP]) 
+    time.sleep(40)
+    SapGuiAuto = GetObject('SAPGUI')
     
-    #Open SAP LOGON
-    subprocess.check_call([r'C:\Program Files (x86)\SAP\FrontEnd\SAPgui\sapshcut.exe', '-system='+ system_SAP])
-    time.sleep(10)
-    SapGuiAuto = win32com.client.GetObject('SAPGUI')
-    application = SapGuiAuto.GetScriptingEngine
-   # application.Visible = False
+    application = SapGuiAuto.GetScriptingEngine 
     connection = application.Children(0)
     session = connection.Children(0)
 
@@ -68,7 +67,7 @@ def SAP_Extraction():
         session.findById("wnd[1]/usr/ctxtDY_PATH").text = directory
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "zse16.txt"
         session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        return 'zse16.txt',4
+        return 'zse16.txt',5
 
     def Y_lad_65000280():        
         print("Comecar o Y_lad_65000280")
@@ -127,11 +126,14 @@ def SAP_Extraction():
         session.findById("wnd[0]/usr/ctxtALV_DEF").setFocus()
         session.findById("wnd[0]/usr/ctxtALV_DEF").caretPosition = 8
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
+        
+        session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[0]").select()
+        session.findById("wnd[1]/tbar[0]/btn[20]").press()
         session.findById("wnd[1]/usr/ctxtDY_PATH").text = directory
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "mb51_261-262.XLSX"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 22
         session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        return 'mb51_261-262.XLSX',2
+        return 'mb51_261-262.XLSX',4
     
     def Mb51_7():
         print("Comecar o Mb51_7")
@@ -146,14 +148,17 @@ def SAP_Extraction():
         session.findById("wnd[0]/usr/ctxtALV_DEF").setFocus()
         session.findById("wnd[0]/usr/ctxtALV_DEF").caretPosition = 8
         session.findById("wnd[0]").sendVKey (8)
-        session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
+        
+        session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[0]").select()
+        session.findById("wnd[1]/tbar[0]/btn[20]").press()
         session.findById("wnd[1]/usr/ctxtDY_PATH").text = directory
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "mb51_7.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 17
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 22
         session.findById("wnd[1]/tbar[0]/btn[0]").press()
+
         print("salvou")
         return 'mb51_7.XLSX',3
-    lista_de_metodos = [Mb51_261_262,Mb51_7,zse16,Y_lad_65000280]
+    lista_de_metodos = [Mb51_7,Mb51_261_262,zse16,Y_lad_65000280]
       
     #RUN SAP script
     for metodo in lista_de_metodos:
@@ -170,7 +175,7 @@ def SAP_Extraction():
         #Retorno para tela inicial do SAP 
         for t in range(i[1]):
             session.findById("wnd[0]/tbar[0]/btn[12]").press()
-
+        
         print('deu certo: ', i[0])
         
     # Close SAP GUI
@@ -181,15 +186,12 @@ def SAP_Extraction():
    #Metodo para acessar as credenciais do google para poder editar o sheets
 def LoadFromSheets(spreadsheet_id):
     # Carregue as credenciais da conta de serviço
-    creds = {
 
-    }
     # Crie um objeto Credentials a partir das credenciais
     credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds)
-
-    s = Spread(spreadsheet_id,sheet=0,creds=credentials)
-
-    return s
+    print("autenticou")
+    return Spread(spreadsheet_id,sheet=0,creds=credentials)
+    
     
 def TextToExcel(fileName):
     # Expressão regular para identificar a palavra "Table" na primeira linha
@@ -260,26 +262,57 @@ def TextToExcel(fileName):
         print("Planilha criada com sucesso!")
     
     return fileName[:-4] +".XLSX"
-#Corre por uma lista de nome de arquivos e concatena eles, carrega o google sheets antigo, faz um merge com o antigo e novo, sobe para o sheets
+
+
+    
 def JoinAndSaveNewExtract():
-    print(fileNameExel)
+    
+    print(fileNameExel)# = ["zse16.XLSX","Y_LAD_65000280.XLSX"]
+    print("Excel para SAP")
     googleSheets = LoadFromSheets(spreadsheet_id)
-    worksheet = googleSheets.sheet
-    #sheets_antigo_df = Spread.sheet_to_df(s)
-    #worksheet.clear()
-    googleSheets.clear_sheet(1000,15,worksheet)
+
     letters = string.ascii_lowercase
     t=0
     for i in fileNameExel:  #Corre pelos Arquivos exel, aplica o "remove_leading_zeros", renomeia as colunas e faz o concat
+             
         df_exel = pd.read_excel(directory + i)
-        if("mb51" in i):  
+        if("mb51_261-262" in i):  
+            googleSheets.open_sheet("1 - Download SAP - Weekly")
+            worksheet = googleSheets.sheet
+            range_to_clear = f'A2:C1000'
+
+            # Execute o batch_clear para limpar o range
+            worksheet.batch_clear([range_to_clear])
             df_exel = df_exel.groupby('Material').agg({'Quantity': 'sum','Amt.in Loc.Cur.':'sum'}).reset_index()
-        
+        if("mb51_7" in i):  
+            t = 5
+            googleSheets.open_sheet("1 - Download SAP - Weekly")
+            worksheet = googleSheets.sheet
+            range_to_clear = f'F2:H1000'
+            worksheet.batch_clear([range_to_clear])
+            
+            df_exel = df_exel.groupby('Material').agg({'Quantity': 'sum','Amt.in Loc.Cur.':'sum'}).reset_index()
+
         if("zse16" in i):
-            df_exel= df_exel.rename(columns={"Plant": " Plnt ", "MRP Controller": " MRPCn "})
-            df_exel = df_exel[["Material",' Plnt ',' MRPCn']]
+            t = 6
+            googleSheets.open_sheet("0 - SKUs info")
+            worksheet = googleSheets.sheet
+            range_to_clear = f'H2:L1000'
+
+            # Execute o batch_clear para limpar o range
+            worksheet.batch_clear([range_to_clear])
+            df_exel= df_exel.rename(columns={"Plant": "Plnt", "MRP Controller": "MRPCn"})
+            df_exel = df_exel[["Material",'Plnt','MRPCn']]
+
         if("Y_LAD_65000280" in i):
-            print("aa")
+            t = 0
+            googleSheets.open_sheet("0 - SKUs info")
+            worksheet = googleSheets.sheet
+            range_to_clear = f'A2:F1000'
+
+            # Execute o batch_clear para limpar o range
+            worksheet.batch_clear([range_to_clear])
+
             df_exel = df_exel.rename(columns={" Standard price": "Standard price", "   per":"per"})
             print(df_exel.columns)
             df_exel = df_exel[["Material","Standard price","per","BUn"]]
@@ -293,21 +326,22 @@ def JoinAndSaveNewExtract():
             df_exel["per"] = df_exel["per"].astype(float)
             
             df_exel["STD Cost"] = df_exel["Standard price"] / df_exel["per"]
-
-
-            df_exel = df_exel.loc[:, ~df_exel.columns.str.contains('^Unnamed')]
+           # df_exel = df_exel.loc[:, ~df_exel.columns.str.contains('^Unnamed')]
             
+  
         df_exel = df_exel.sort_values(by='Material')
         df_exel = pd.DataFrame(df_exel)
-        googleSheets.df_to_sheet(df_exel, sheet=worksheet,index=False, start = letters[0+t]+ '1') 
-        t += 6
-        print(i + " extraiu na " +letters[0+t-6]) 
+        googleSheets.df_to_sheet(df_exel, sheet=worksheet,index=False, start = letters[0+t]+ '2') 
+        print(i + " extraiu na " +letters[0+t]+ "2") 
         
+
+
 def AutoRun():
     if (autoRun.get() == 1):
         print("Automatico!")
         c1.config(state=tk.DISABLED)
         SAP_Extraction()
+        time.sleep(3)
         JoinAndSaveNewExtract()
         c1.config(state= tk.NORMAL)
         
